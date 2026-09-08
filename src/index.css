@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+	scroll-behavior: smooth;
+}
+
+.instagram-marquee {
+	overflow: hidden;
+}
+
+.instagram-track {
+	display: flex;
+	width: max-content;
+	gap: 1rem;
+	animation: instagram-scroll 90s linear infinite;
+}
+
+.instagram-marquee:hover .instagram-track {
+	animation-play-state: paused;
+}
+
+.instagram-tile {
+	position: relative;
+	display: block;
+	width: clamp(9rem, 20vw, 15rem);
+	aspect-ratio: 1;
+	overflow: hidden;
+	border: 1px solid rgb(39 39 42);
+	background: rgb(24 24 27);
+}
+
+.instagram-tile img {
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+	transition: transform 500ms ease;
+}
+
+.instagram-tile:hover img {
+	transform: scale(1.06);
+}
+
+@keyframes instagram-scroll {
+	from { transform: translateX(0); }
+	to { transform: translateX(calc(-50% - 0.5rem)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.instagram-track {
+		animation-play-state: paused;
+	}
+}

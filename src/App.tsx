@@ -18,12 +18,64 @@ function SectionHeader({ label, title, align = "left", className = "" }: Section
 
   return (
     <div className={`${alignment} ${className}`}>
-      <span className="inline-flex items-center rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-[11px] font-semibold tracking-[0.22em] text-zinc-300 uppercase">
+      <span className="inline-flex items-center rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-[11px] font-bold tracking-[0.28em] text-zinc-300 uppercase">
         {label}
       </span>
-      <h2 className="mt-7 text-3xl font-black leading-tight tracking-[-0.06em] text-white whitespace-pre-line md:text-5xl">
+      <h2 className="mt-6 text-2xl font-black leading-[1] tracking-[-0.07em] text-white whitespace-pre-line md:text-4xl lg:text-5xl">
         {title}
       </h2>
+    </div>
+  );
+}
+
+function VehicleDetailPanel({
+  selectedYear,
+  selectedVehicle,
+  image,
+}: {
+  selectedYear: VehicleYear;
+  selectedVehicle: (typeof VEHICLE_DATABASE)[keyof typeof VEHICLE_DATABASE];
+  image: string;
+}) {
+  return (
+    <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-racing-card shadow-xl">
+      <div className="grid md:grid-cols-[1.2fr_minmax(0,1fr)]">
+        <div className="relative min-h-[360px] bg-zinc-900">
+          <img
+            src={image}
+            alt={`${selectedVehicle.modelName} vehicle preview`}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-mono tracking-[0.22em] uppercase text-racing-green">{selectedVehicle.carNumber}</p>
+                <h3 className="mt-2 text-2xl font-black tracking-[-0.05em] text-white">{selectedVehicle.modelName}</h3>
+              </div>
+              <span className="rounded-full border border-white/20 bg-black/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-100">
+                {selectedYear}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-racing-card p-6 md:p-7">
+          <div className="mb-5 flex items-center justify-between gap-2 border-b border-zinc-800 pb-3">
+            <span className="text-[11px] font-mono font-bold tracking-[0.22em] uppercase text-racing-green">Spec Sheet</span>
+            <span className="text-sm font-semibold text-zinc-300">{selectedVehicle.telemetry.maxPower}</span>
+          </div>
+
+          <div className="space-y-3">
+            {selectedVehicle.specs.map((item) => (
+              <div key={item.label} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-3">
+                <div className="text-[11px] font-mono font-semibold tracking-[0.16em] uppercase text-zinc-500">{item.label}</div>
+                <div className="mt-2 text-base font-semibold text-white">{item.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -37,35 +89,82 @@ function VehicleSpecsSection({
   setSelectedYear: (year: VehicleYear) => void;
   selectedVehicle: (typeof VEHICLE_DATABASE)[keyof typeof VEHICLE_DATABASE];
 }) {
+  const [isDetailOpen, setIsDetailOpen] = useState(true);
+  const years: VehicleYear[] = ["2026", "2025", "2024", "2023"];
+  const vehicleCardImages: Record<VehicleYear, string> = {
+    "2026": "/cars/KUMA_testdriveing_filmcam.jpg",
+    "2025": "/cars/KakaoTalk_20260829_190154401.jpg",
+    "2024": "/cars/KUMA_testdriveing_filmcam.jpg",
+    "2023": "/cars/KakaoTalk_20260829_190154401.jpg",
+  };
+
   return (
-    <section id="competition" className="py-20 px-6 max-w-5xl mx-auto border-t border-zinc-800">
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-        <div>
-          <SectionHeader label="Vehicle Specs" title={selectedVehicle.modelName} className="!mt-0" />
-          <p className="text-sm text-zinc-400 mt-3">{selectedVehicle.tagline}</p>
-        </div>
-        <div className="flex gap-2 bg-zinc-900 p-1.5 rounded-lg border border-zinc-800">
-          {(["2026", "2025", "2024", "2023"] as const).map((year) => (
-            <button
-              key={year}
-              type="button"
-              onClick={() => setSelectedYear(year)}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${selectedYear === year ? "bg-zinc-800 text-racing-green shadow-sm" : "text-zinc-400 hover:text-white"}`}
-            >
-              {year} Season
-            </button>
-          ))}
-        </div>
+    <section id="competition" className="py-20 px-6 max-w-7xl mx-auto border-t border-zinc-800">
+      <div className="mb-8">
+        <SectionHeader label="Vehicle Specs" title={selectedVehicle.modelName} className="!mt-0" />
+        <p className="text-sm text-zinc-400 mt-3">{selectedVehicle.tagline}</p>
       </div>
 
-      <div className="bg-racing-card rounded-2xl border border-zinc-800 p-6 md:p-8 shadow-xl">
-        <div className="divide-y divide-zinc-800/80">
-          {selectedVehicle.specs.map((item) => (
-            <div key={item.label} className="flex justify-between items-center gap-6 py-3.5 text-sm">
-              <span className="text-zinc-400 font-medium">{item.label}</span>
-              <span className="font-mono text-white font-semibold text-right">{item.value}</span>
-            </div>
-          ))}
+      <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="space-y-4">
+          {years.map((year) => {
+            const yearVehicle = VEHICLE_DATABASE[year];
+            const isSelected = year === selectedYear;
+
+            return (
+              <>
+                <button
+                key={year}
+                type="button"
+                onClick={() => {
+                  if (year === selectedYear) {
+                    setIsDetailOpen((open) => !open);
+                    return;
+                  }
+
+                  setSelectedYear(year);
+                  setIsDetailOpen(true);
+                }}
+                aria-expanded={isSelected && isDetailOpen}
+                className={`group relative block h-28 w-full overflow-hidden rounded-2xl border text-left transition-all ${
+                  isSelected
+                    ? "border-racing-green/70 shadow-[0_0_0_1px_rgba(36,198,126,0.35)]"
+                    : "border-zinc-800 hover:border-zinc-600"
+                }`}
+              >
+                <img
+                  src={vehicleCardImages[year]}
+                  alt={`${year} KUMA vehicle`}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-black/10" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-black tracking-[-0.08em] text-white/90">{year}</span>
+                  <span className="mt-1 text-[9px] font-mono font-semibold tracking-[0.08em] text-zinc-100/80">
+                    {yearVehicle.telemetry.maxPower} · {yearVehicle.telemetry.curbWeight} · {yearVehicle.telemetry.topSpeed}
+                  </span>
+                </div>
+                <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between text-[10px] font-mono tracking-[0.18em] uppercase text-zinc-100/90">
+                  <span>{yearVehicle.modelName}</span>
+                  <span>{yearVehicle.carNumber}</span>
+                </div>
+                </button>
+                <div
+                  className={`grid overflow-hidden transition-[grid-template-rows,opacity,margin] duration-500 ease-out lg:hidden ${
+                    isSelected && isDetailOpen ? "mt-4 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0 pointer-events-none"
+                  }`}
+                >
+                  <div className="min-h-0 overflow-hidden">
+                    <VehicleDetailPanel selectedYear={selectedYear} selectedVehicle={selectedVehicle} image={vehicleCardImages[selectedYear]} />
+                  </div>
+                </div>
+              </>
+            );
+          })}
+        </div>
+
+        <div className="hidden lg:block">
+          <VehicleDetailPanel selectedYear={selectedYear} selectedVehicle={selectedVehicle} image={vehicleCardImages[selectedYear]} />
         </div>
       </div>
     </section>
@@ -75,9 +174,9 @@ function VehicleSpecsSection({
 function AboutKumaSection() {
   return (
     <section id="about" className="py-20 px-6 max-w-7xl mx-auto border-t border-zinc-800">
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full">
         <SectionHeader label="About KUMA" title="Engineering With Combustion" className="!mt-0" />
-        <div className="mt-6 space-y-4 text-base leading-8 text-zinc-400 md:text-lg">
+        <div className="mt-6 space-y-4 text-base leading-7 text-zinc-400 md:text-lg">
           <p>
             KUMA는 내연기관 포뮬러 차량을 직접 설계하고 제작하며, 데이터 기반 주행으로 차량의 완성도를 높이는 레이싱 동아리입니다.
           </p>
@@ -128,7 +227,7 @@ function AchievementsSection({
                   <span className="text-[10px] font-mono tracking-[0.18em] text-zinc-500 uppercase">{achievement.category}</span>
                 </div>
 
-                <h3 className="text-xl font-bold text-white md:text-2xl">{achievement.title}</h3>
+                <h3 className="text-xl font-black tracking-[-0.04em] text-white md:text-2xl">{achievement.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-zinc-400 md:text-base">{achievement.short}</p>
               </div>
 
@@ -163,7 +262,7 @@ function NewsSection() {
         ].map(([date, title, description]) => (
           <article key={title} className="bg-racing-card p-6 rounded-xl border border-zinc-800">
             <span className="text-xs font-mono text-racing-green">{date}</span>
-            <h3 className="text-lg font-bold text-white mt-4">{title}</h3>
+            <h3 className="text-lg font-black tracking-[-0.03em] text-white mt-4">{title}</h3>
             <p className="text-sm text-zinc-400 leading-relaxed mt-3">{description}</p>
           </article>
         ))}
@@ -188,7 +287,7 @@ function GallerySection() {
           />
           <figcaption className="p-5">
             <span className="text-xs font-mono text-racing-green">TEST DAY</span>
-            <h3 className="text-lg font-bold text-white mt-1">차량 테스트 주행</h3>
+            <h3 className="text-lg font-black tracking-[-0.03em] text-white mt-1">차량 테스트 주행</h3>
           </figcaption>
         </figure>
         <figure className="group overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
@@ -199,7 +298,7 @@ function GallerySection() {
           />
           <figcaption className="p-5">
             <span className="text-xs font-mono text-racing-green">COMPETITION DAY</span>
-            <h3 className="text-lg font-bold text-white mt-1">대회 주행 기록</h3>
+            <h3 className="text-lg font-black tracking-[-0.03em] text-white mt-1">대회 주행 기록</h3>
           </figcaption>
         </figure>
       </div>
@@ -223,7 +322,7 @@ function SponsorshipSection() {
           <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-racing-green">
             <Gauge className="h-5 w-5" />
           </div>
-          <h3 className="mb-2 text-xl font-bold text-white">강력한 브랜드 노출</h3>
+          <h3 className="mb-2 text-xl font-black tracking-[-0.04em] text-white">강력한 브랜드 노출</h3>
           <p className="text-sm leading-relaxed text-zinc-400">
             차량, 피트 스테이션, 작업복, 공식 SNS 채널을 통해 실제 레이싱 생태계에 브랜드를 확실히 노출합니다.
           </p>
@@ -233,7 +332,7 @@ function SponsorshipSection() {
           <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-racing-green">
             <ShieldCheck className="h-5 w-5" />
           </div>
-          <h3 className="mb-2 text-xl font-bold text-white">우수 공학 인재 연계</h3>
+          <h3 className="mb-2 text-xl font-black tracking-[-0.04em] text-white">우수 공학 인재 연계</h3>
           <p className="text-sm leading-relaxed text-zinc-400">
             CAD, 해석, 제어, 실차 테스트를 경험한 학생 엔지니어들과의 인재 네트워킹과 기술 협업을 지원합니다.
           </p>
@@ -243,7 +342,7 @@ function SponsorshipSection() {
           <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-racing-green">
             <Zap className="h-5 w-5" />
           </div>
-          <h3 className="mb-2 text-xl font-bold text-white">실차 검증과 피드백</h3>
+          <h3 className="mb-2 text-xl font-black tracking-[-0.04em] text-white">실차 검증과 피드백</h3>
           <p className="text-sm leading-relaxed text-zinc-400">
             후원 부품과 기술이 실제 주행 환경에서 검증되고, 데이터 기반 개선 피드백을 통해 함께 성장합니다.
           </p>
@@ -415,16 +514,16 @@ export default function App() {
           </span>
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white max-w-4xl leading-tight">
+        <h1 className="text-4xl md:text-6xl font-black tracking-[-0.05em] text-white max-w-4xl leading-[0.98]">
           PRECISION ENGINEERING, <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-racing-green to-racing-blue">
             UNCOMPROMISING SPEED
           </span>
         </h1>
 
-        <p className="mt-6 text-zinc-400 max-w-2xl text-base md:text-lg">
-          가상 해석(CAE/CFD)부터 정밀 가공, 엔진 맵핑과 내연기관 파워트레인 튜닝까지.
-          트랙 위에서 가장 완벽한 랩타임을 증명하는 엔지니어링 집약체입니다.
+        <p className="mt-6 w-full max-w-3xl text-zinc-400 text-base md:text-lg leading-7 break-keep">
+          <span className="block">가상 해석(CAE/CFD)부터 정밀 가공, 엔진 맵핑과 내연기관 파워트레인 튜닝까지.</span>
+          <span className="block">트랙 위에서 가장 완벽한 랩타임을 증명하는 엔지니어링 집약체입니다.</span>
         </p>
 
         <div className="mt-10 grid grid-cols-3 gap-4 md:gap-8 w-full max-w-2xl">
@@ -463,7 +562,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 mb-6 flex items-center justify-between gap-4">
           <div>
             <span className="text-xs font-mono text-racing-green tracking-widest uppercase">Follow KUMA</span>
-            <h2 className="text-2xl font-black text-white mt-1">Instagram Feed</h2>
+            <h2 className="text-3xl font-black tracking-[-0.06em] text-white mt-1">Instagram Feed</h2>
           </div>
           <a
             href={INSTAGRAM_URL}
@@ -505,7 +604,7 @@ export default function App() {
             <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
               <div>
                 <p className="text-[10px] font-mono tracking-[0.2em] text-racing-green uppercase">{selectedAchievement.season}</p>
-                <h3 className="mt-1 text-2xl font-bold text-white">{selectedAchievement.title}</h3>
+                <h3 className="mt-1 text-xl font-bold text-white">{selectedAchievement.title}</h3>
               </div>
               <button
                 type="button"

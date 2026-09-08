@@ -25,8 +25,8 @@ export const VEHICLE_DATABASE: Record<string, VehicleData> = {
     tagline: "경량 10인치 업라이트 패키징 및 고회전 자연흡기 파워트레인 최적화",
     telemetry: {
       curbWeight: "189 kg",
-      maxPower: "50 ps",
-      topSpeed: "131 km/h",
+      maxPower: "100 ps",
+      topSpeed: "201 km/h",
       downforce: "760 N"
     },
     

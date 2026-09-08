@@ -251,11 +251,17 @@ export default function App() {
               <h3 className="text-lg font-bold text-white mt-1">차량 테스트 주행</h3>
             </figcaption>
           </figure>
-          <div className="min-h-96 rounded-2xl border border-dashed border-zinc-700 bg-zinc-900/60 flex flex-col items-center justify-center text-center px-6">
-            <span className="text-4xl text-zinc-600">+</span>
-            <h3 className="text-lg font-bold text-zinc-300 mt-3">대회장 또는 작업 이미지 추가</h3>
-            <p className="text-sm text-zinc-500 mt-2">public/cars 폴더에 이미지를 넣고 이 영역에 연결하세요.</p>
-          </div>
+          <figure className="group overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
+            <img
+              src="/cars/KakaoTalk_20260829_190154401.jpg"
+              alt="KUMA 차량 대회 주행 모습"
+              className="h-80 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            <figcaption className="p-5">
+              <span className="text-xs font-mono text-racing-green">COMPETITION DAY</span>
+              <h3 className="text-lg font-bold text-white mt-1">대회 주행 기록</h3>
+            </figcaption>
+          </figure>
         </div>
       </section>
 

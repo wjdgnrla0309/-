@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Zap, ShieldCheck, Mail, Phone, MapPin, FileText, Gauge, Menu, X, ArrowUpRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Zap, ShieldCheck, Mail, Phone, MapPin, FileText, Gauge, Menu, X, ArrowUpRight, Lock, ShieldAlert, Clock } from "lucide-react";
 
 import { VEHICLE_DATABASE } from "./data/specs";
 import kumaLogo from "../KUMA LOGO.webp";
 
+// ===== 타입 정의 =====
 type VehicleYear = "2026" | "2025" | "2024" | "2023";
 
 type SectionHeaderProps = {
@@ -13,6 +14,7 @@ type SectionHeaderProps = {
   className?: string;
 };
 
+// ===== 공통 섹션 헤더 =====
 function SectionHeader({ label, title, align = "left", className = "" }: SectionHeaderProps) {
   const alignment = align === "center" ? "mx-auto text-center" : "";
 
@@ -28,6 +30,29 @@ function SectionHeader({ label, title, align = "left", className = "" }: Section
   );
 }
 
+// ===== ABOUT US =====
+function AboutKumaSection() {
+  return (
+    <section id="about" className="py-20 px-6 max-w-7xl mx-auto border-t border-zinc-800">
+      <div className="w-full">
+        <SectionHeader label="About KUMA" title="Engineering With Combustion" className="!mt-0" />
+        <div className="mt-6 space-y-4 text-base leading-7 text-zinc-400 md:text-lg">
+          <p>
+            KUMA는 내연기관 포뮬러 차량을 직접 설계하고 제작하며, 데이터 기반 주행으로 차량의 완성도를 높이는 레이싱 동아리입니다.
+          </p>
+          <p>
+            저희 동아리는 전공지식을 활용하여 레이스 차량을 설계 및 제작하고, 공학도로서의 역량을 기르기 위한 소양을 쌓는 것을 목표로 하고 있습니다.
+          </p>
+          <p>
+            주요 활동으로는 KSAE에서 주최하는 대학생 자작자동차 대회 Formula 부문에 직접 제작한 레이스차량으로 참가하여 타 대학교 팀들과 경쟁하고, 지식을 나누는 활동을 이어가고 있습니다.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ===== COMPETITION: 차량 상세 패널 =====
 function VehicleDetailPanel({
   selectedYear,
   selectedVehicle,
@@ -80,6 +105,7 @@ function VehicleDetailPanel({
   );
 }
 
+// ===== COMPETITION: 차량 제원 =====
 function VehicleSpecsSection({
   selectedYear,
   setSelectedYear,
@@ -112,53 +138,52 @@ function VehicleSpecsSection({
             const isSelected = year === selectedYear;
 
             return (
-              <>
+              <div key={year} className="space-y-4">
                 <button
-                key={year}
-                type="button"
-                onClick={() => {
-                  if (year === selectedYear) {
-                    setIsDetailOpen((open) => !open);
-                    return;
-                  }
+                  type="button"
+                  onClick={() => {
+                    if (year === selectedYear) {
+                      setIsDetailOpen((open) => !open);
+                      return;
+                    }
 
-                  setSelectedYear(year);
-                  setIsDetailOpen(true);
-                }}
-                aria-expanded={isSelected && isDetailOpen}
-                className={`group relative block h-28 w-full overflow-hidden rounded-2xl border text-left transition-all ${
-                  isSelected
-                    ? "border-racing-green/70 shadow-[0_0_0_1px_rgba(36,198,126,0.35)]"
-                    : "border-zinc-800 hover:border-zinc-600"
-                }`}
-              >
-                <img
-                  src={vehicleCardImages[year]}
-                  alt={`${year} KUMA vehicle`}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-black/10" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-black tracking-[-0.08em] text-white/90">{year}</span>
-                  <span className="mt-1 text-[9px] font-mono font-semibold tracking-[0.08em] text-zinc-100/80">
-                    {yearVehicle.telemetry.maxPower} · {yearVehicle.telemetry.curbWeight} · {yearVehicle.telemetry.topSpeed}
-                  </span>
-                </div>
-                <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between text-[10px] font-mono tracking-[0.18em] uppercase text-zinc-100/90">
-                  <span>{yearVehicle.modelName}</span>
-                  <span>{yearVehicle.carNumber}</span>
-                </div>
+                    setSelectedYear(year);
+                    setIsDetailOpen(true);
+                  }}
+                  aria-expanded={isSelected && isDetailOpen}
+                  className={`group relative block h-28 w-full overflow-hidden rounded-2xl border text-left transition-all ${
+                    isSelected
+                      ? "border-racing-green/70 shadow-[0_0_0_1px_rgba(36,198,126,0.35)]"
+                      : "border-zinc-800 hover:border-zinc-600"
+                  }`}
+                >
+                  <img
+                    src={vehicleCardImages[year]}
+                    alt={`${year} KUMA vehicle`}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/35 to-black/10" />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-3xl font-black tracking-[-0.08em] text-white/90">{year}</span>
+                    <span className="mt-1 text-[9px] font-mono font-semibold tracking-[0.08em] text-zinc-100/80">
+                      {yearVehicle.telemetry.maxPower} · {yearVehicle.telemetry.curbWeight} · {yearVehicle.telemetry.topSpeed}
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between text-[10px] font-mono tracking-[0.18em] uppercase text-zinc-100/90">
+                    <span>{yearVehicle.modelName}</span>
+                    <span>{yearVehicle.carNumber}</span>
+                  </div>
                 </button>
                 <div
                   className={`grid overflow-hidden transition-[grid-template-rows,opacity,margin] duration-500 ease-out lg:hidden ${
-                    isSelected && isDetailOpen ? "mt-4 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0 pointer-events-none"
+                    isSelected && isDetailOpen ? "mt-0 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0 pointer-events-none"
                   }`}
                 >
                   <div className="min-h-0 overflow-hidden">
-                    <VehicleDetailPanel selectedYear={selectedYear} selectedVehicle={selectedVehicle} image={vehicleCardImages[selectedYear]} />
+                    <VehicleDetailPanel selectedYear={year} selectedVehicle={yearVehicle} image={vehicleCardImages[year]} />
                   </div>
                 </div>
-              </>
+              </div>
             );
           })}
         </div>
@@ -171,27 +196,7 @@ function VehicleSpecsSection({
   );
 }
 
-function AboutKumaSection() {
-  return (
-    <section id="about" className="py-20 px-6 max-w-7xl mx-auto border-t border-zinc-800">
-      <div className="w-full">
-        <SectionHeader label="About KUMA" title="Engineering With Combustion" className="!mt-0" />
-        <div className="mt-6 space-y-4 text-base leading-7 text-zinc-400 md:text-lg">
-          <p>
-            KUMA는 내연기관 포뮬러 차량을 직접 설계하고 제작하며, 데이터 기반 주행으로 차량의 완성도를 높이는 레이싱 동아리입니다.
-          </p>
-          <p>
-            저희 동아리는 전공지식을 활용하여 레이스 차량을 설계 및 제작하고, 공학도로서의 역량을 기르기 위한 소양을 쌓는 것을 목표로 하고 있습니다.
-          </p>
-          <p>
-            주요 활동으로는 KSAE에서 주최하는 대학생 자작자동차 대회 Formula 부문에 직접 제작한 레이스차량으로 참가하여 타 대학교 팀들과 경쟁하고, 지식을 나누는 활동을 이어가고 있습니다.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
+// ===== ACHIEVEMENTS =====
 function AchievementsSection({
   setSelectedAchievement,
 }: {
@@ -248,6 +253,7 @@ function AchievementsSection({
   );
 }
 
+// ===== NEWS =====
 function NewsSection() {
   return (
     <section id="news" className="py-20 px-6 max-w-7xl mx-auto border-t border-zinc-800">
@@ -271,6 +277,7 @@ function NewsSection() {
   );
 }
 
+// ===== GALLERY =====
 function GallerySection() {
   return (
     <section id="gallery" className="py-20 px-6 max-w-7xl mx-auto border-t border-zinc-800">
@@ -306,7 +313,10 @@ function GallerySection() {
   );
 }
 
+// ===== SPONSORSHIP =====
 function SponsorshipSection() {
+  const [isSponsorListOpen, setIsSponsorListOpen] = useState(false);
+
   return (
     <section id="sponsors" className="py-20 px-6 max-w-7xl mx-auto border-t border-zinc-800">
       <div className="max-w-3xl">
@@ -352,8 +362,18 @@ function SponsorshipSection() {
       <div className="mt-14 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-5 md:p-8">
         <div className="sponsor-marquee sponsor-marquee-right">
           <div className="sponsor-track">
-            {[...SPONSORS, ...SPONSORS].map((sponsor, index) => (
+            {[...SPONSOR_LIST, ...SPONSOR_LIST].map((sponsor, index) => (
               <span key={`${sponsor.name}-${index}`} className="sponsor-chip">
+                {sponsor.logo && (
+                  <img
+                    src={sponsor.logo}
+                    alt=""
+                    className="mr-3 h-7 w-auto max-w-[100px] object-contain"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
                 {sponsor.name}
               </span>
             ))}
@@ -362,8 +382,18 @@ function SponsorshipSection() {
 
         <div className="sponsor-marquee sponsor-marquee-left mt-4">
           <div className="sponsor-track">
-            {[...SPONSORS.slice().reverse(), ...SPONSORS.slice().reverse()].map((sponsor, index) => (
+            {[...SPONSOR_LIST.slice().reverse(), ...SPONSOR_LIST.slice().reverse()].map((sponsor, index) => (
               <span key={`${sponsor.name}-reverse-${index}`} className="sponsor-chip sponsor-chip-muted">
+                {sponsor.logo && (
+                  <img
+                    src={sponsor.logo}
+                    alt=""
+                    className="mr-3 h-7 w-auto max-w-[100px] object-contain"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
                 {sponsor.name}
               </span>
             ))}
@@ -372,18 +402,58 @@ function SponsorshipSection() {
       </div>
 
       <div className="mt-12 flex flex-col justify-center gap-4 md:flex-row">
-        <button className="inline-flex items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-white transition hover:border-racing-green hover:text-racing-green">
-          스폰서 목록 보기
+        <button
+          type="button"
+          aria-expanded={isSponsorListOpen}
+          onClick={() => setIsSponsorListOpen((open) => !open)}
+          className="inline-flex items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-white transition hover:border-racing-green hover:text-racing-green"
+        >
+          {isSponsorListOpen ? "스폰서 목록 닫기" : "스폰서 목록 보기"}
         </button>
         <button className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-black transition hover:bg-racing-green hover:text-black">
           <FileText className="mr-2 h-4 w-4" />
           제안서 다운로드 (PDF)
         </button>
       </div>
+
+      <div
+        className={`grid overflow-hidden transition-[grid-template-rows,opacity,margin] duration-500 ease-out ${
+          isSponsorListOpen ? "mt-8 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {SPONSOR_LIST.map((sponsor) => (
+              <a
+                key={sponsor.name}
+                href={sponsor.url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`${sponsor.name} 공식 사이트 열기`}
+                className="group flex min-h-16 items-center rounded-xl border border-zinc-800 bg-racing-card px-5 text-sm font-bold tracking-[0.08em] text-zinc-200 transition-colors hover:border-racing-green/60 hover:text-racing-green"
+              >
+                {sponsor.logo && (
+                  <img
+                    src={sponsor.logo}
+                    alt={`${sponsor.name} 로고`}
+                    className="h-9 w-20 shrink-0 object-contain object-left"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
+                <span>{sponsor.name}</span>
+                <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-zinc-500 transition-colors group-hover:text-racing-green" />
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
 
+// ===== CONTACT US =====
 function ContactSection() {
   return (
     <section id="contact" className="py-20 px-6 max-w-7xl mx-auto border-t border-zinc-800">
@@ -403,9 +473,12 @@ function ContactSection() {
               <Mail className="w-5 h-5 text-racing-green shrink-0" />
               <span>team-formula@university.ac.kr</span>
             </div>
-            <div className="flex items-center gap-3 text-zinc-300">
+            <div className="flex items-start gap-3 text-zinc-300">
               <Phone className="w-5 h-5 text-racing-green shrink-0" />
-              <span> 팀장 : 노경민 / 연락처 : 010-1234-5678 / 메일 : team-formula@university.ac.kr</span>
+              <div className="space-y-2">
+                <p>팀장 : 홍길동 / 연락처 : 010-1234-5678 / 메일 : </p>
+                <p>회장 : 홍길동 / 연락처 : 010-1234-5678 / 메일 : </p>
+              </div>
             </div>
           </div>
         </div>
@@ -436,14 +509,42 @@ function ContactSection() {
   );
 }
 
+// ===== 페이지 전체 조립 =====
 export default function App() {
   const [selectedYear, setSelectedYear] = useState<VehicleYear>("2026");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedAchievement, setSelectedAchievement] = useState<(typeof ACHIEVEMENTS)[number] | null>(null);
+  const [isDecryptOpen, setIsDecryptOpen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const selectedVehicle = VEHICLE_DATABASE[selectedYear] ?? VEHICLE_DATABASE["2026"];
+
+  useEffect(() => {
+    const targetDate = new Date("2027-08-27T00:00:00").getTime();
+
+    const updateCountdown = () => {
+      const difference = targetDate - Date.now();
+
+      if (difference <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      setTimeLeft({
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((difference % (1000 * 60)) / 1000),
+      });
+    };
+
+    updateCountdown();
+    const timer = window.setInterval(updateCountdown, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
     <div id="top" className="min-h-screen bg-racing-dark text-zinc-100 selection:bg-racing-blue selection:text-white font-sans">
+      {/* ===== 고정 헤더 / 네비게이션 ===== */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
           <a href="#top" className="flex shrink-0 items-center gap-4" aria-label="KUMA Racing 최상단으로 이동">
@@ -467,7 +568,13 @@ export default function App() {
             <a href="#contact" className="hover:text-white transition-colors">CONTACT US</a>
           </nav>
 
-          <div className="hidden md:block w-[120px]" aria-hidden="true" />
+          <button
+            type="button"
+            onClick={() => setIsDecryptOpen(true)}
+            className="ml-auto hidden items-center gap-2 rounded-full border border-racing-green/50 bg-zinc-900 px-4 py-1.5 text-xs font-mono font-semibold text-racing-green transition-all hover:bg-racing-green hover:text-black md:flex"
+          >
+            <Lock className="h-3.5 w-3.5" /> DECRYPT SPEC
+          </button>
           <div className="ml-auto md:hidden">
             <button
               type="button"
@@ -505,59 +612,154 @@ export default function App() {
         )}
       </header>
 
-      <section className="relative pt-24 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400 mb-6">
+      {/* ===== 기밀 해제 모달 ===== */}
+      {isDecryptOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+          <div className="relative w-full max-w-md rounded-2xl border-2 border-red-600/80 bg-zinc-950 p-6 shadow-[0_0_50px_rgba(239,68,68,0.3)]">
+            <button
+              type="button"
+              aria-label="기밀 모달 닫기"
+              onClick={() => setIsDecryptOpen(false)}
+              className="absolute right-4 top-4 text-zinc-500 transition hover:text-white"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="mb-4 flex items-center gap-3 text-red-500">
+              <ShieldAlert className="h-8 w-8" />
+              <div>
+                <h3 className="font-mono text-lg font-black tracking-wider">ERROR 403: ACCESS DENIED</h3>
+                <span className="text-[11px] font-mono text-zinc-500">CLEARANCE LEVEL 3 REQUIRED</span>
+              </div>
+            </div>
+
+            <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900/90 p-4 font-mono text-xs text-zinc-300">
+              <p className="font-semibold text-red-400">[CRITICAL] 기밀 섀시 데이터 암호화 활성화됨</p>
+              <p>· 대상: 2027 KUMA Next-Gen Monocoque &amp; Powertrain</p>
+              <p>· 상태: 보안 프로토콜에 의해 차단되었습니다.</p>
+              <p className="pt-2 text-[10px] text-zinc-500">* 2027 시즌 차량 제원은 2027 FSK에서 공개됩니다.</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsDecryptOpen(false)}
+              className="mt-6 w-full rounded-lg bg-red-600 py-2.5 font-mono text-xs font-bold tracking-widest text-white transition-colors hover:bg-red-500"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ===== HERO / 2027 차량 티저 ===== */}
+      <section className="relative overflow-hidden pt-24 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center">
+        <div className="pointer-events-none absolute -right-8 top-16 select-none text-[18rem] font-black leading-none text-white/[0.025] md:right-16 md:top-8 md:text-[28rem]">
+          ?
+        </div>
+
+        <div className="relative z-10 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-racing-green/40 text-xs font-mono text-zinc-300 mb-6">
           <span className="w-2 h-2 rounded-full bg-racing-green animate-pulse"></span>
           <span>
-            <span className="text-white font-semibold">KUMA</span>
-            <span> Kongju University Motorsport Association</span>
+            <span className="text-racing-green font-semibold">KUMA 2027 DEVELOPMENT PROGRAM</span>
+            <span> · IN PROGRESS</span>
           </span>
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-black tracking-[-0.05em] text-white max-w-4xl leading-[0.98]">
-          PRECISION ENGINEERING, <br />
+        <h1 className="relative z-10 text-4xl md:text-6xl font-black tracking-[-0.05em] text-white max-w-4xl leading-[0.98]">
+          PRECISION ENGINEERING <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-racing-green to-racing-blue">
-            UNCOMPROMISING SPEED
+            UNCOMPROMISING SPEED<span className="text-racing-green"></span>
           </span>
         </h1>
 
-        <p className="mt-6 w-full max-w-3xl text-zinc-400 text-base md:text-lg leading-7 break-keep">
-          <span className="block">가상 해석(CAE/CFD)부터 정밀 가공, 엔진 맵핑과 내연기관 파워트레인 튜닝까지.</span>
-          <span className="block">트랙 위에서 가장 완벽한 랩타임을 증명하는 엔지니어링 집약체입니다.</span>
+        <p className="relative z-10 mt-6 w-full max-w-3xl text-zinc-400 text-base md:text-lg leading-7 break-keep">
+          <span className="block">2026 시즌의 기록은 끝났고, 새로운 차량의 설계는 이미 시작됐습니다.</span>
+          <span className="block">KUMA가 트랙에 꺼내 놓을 2027 머신의 모습을 가장 먼저 만나보세요.</span>
         </p>
+
+        <div className="relative z-10 mt-8 flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/60 px-5 py-3 md:gap-6 md:px-6">
+          <div className="flex items-center gap-2 border-r border-zinc-800 pr-4 text-xs font-mono uppercase tracking-widest text-racing-green">
+            <Clock className="h-4 w-4" /> UNVEILING IN
+          </div>
+          <div className="flex gap-3 font-mono md:gap-5">
+            {[
+              [timeLeft.days, "DAYS"],
+              [timeLeft.hours, "HOURS"],
+              [timeLeft.minutes, "MIN"],
+              [timeLeft.seconds, "SEC"],
+            ].map(([value, label], index) => (
+              <div key={label} className="text-center">
+                <span className={`text-xl font-black md:text-2xl ${index === 3 ? "text-racing-green" : "text-white"}`}>
+                  {String(value).padStart(index === 0 ? 1 : 2, "0")}
+                </span>
+                <span className="block text-[9px] text-zinc-500">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="mt-10 grid grid-cols-3 gap-4 md:gap-8 w-full max-w-2xl">
           <div className="bg-racing-card/60 p-4 rounded-xl border border-zinc-800/80">
             <div className="text-xs text-zinc-500 font-mono">CURB WEIGHT</div>
-            <div className="text-2xl md:text-3xl font-bold font-mono text-white mt-1">{selectedVehicle.telemetry.curbWeight}</div>
+            <div className="text-2xl md:text-3xl font-bold font-mono text-white mt-1">?</div>
           </div>
           <div className="bg-racing-card/60 p-4 rounded-xl border border-zinc-800/80">
             <div className="text-xs text-zinc-500 font-mono">MAX POWER</div>
-            <div className="text-2xl md:text-3xl font-bold font-mono text-racing-green mt-1">{selectedVehicle.telemetry.maxPower}</div>
+            <div className="text-2xl md:text-3xl font-bold font-mono text-racing-green mt-1">?</div>
           </div>
           <div className="bg-racing-card/60 p-4 rounded-xl border border-zinc-800/80">
             <div className="text-xs text-zinc-500 font-mono">TOP SPEED</div>
-            <div className="text-2xl md:text-3xl font-bold font-mono text-white mt-1">{selectedVehicle.telemetry.topSpeed}</div>
+            <div className="text-2xl md:text-3xl font-bold font-mono text-white mt-1">?</div>
           </div>
         </div>
 
-        <div className="mt-12 w-full max-w-4xl overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl">
+          <div className="relative mt-12 w-full max-w-4xl overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl">
           <img
             src="/cars/KUMA_testdriveing_filmcam.jpg"
-            alt="KUMA 내연기관 포뮬러 차량 주행 모습"
-            className="w-full h-[400px] object-cover hover:scale-105 transition-transform duration-500"
+            alt="KUMA 2027 개발 차량을 암시하는 테스트 주행 모습"
+            className="h-[400px] w-full object-cover brightness-[0.22] contrast-125 grayscale transition-transform duration-500 hover:scale-105 hover:brightness-[0.3]"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/20" />
+          <div className="scanline-overlay pointer-events-none absolute inset-0 opacity-35" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-racing-green/30 bg-black/45 px-8 py-6 text-center backdrop-blur-[2px]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-racing-green/60 bg-zinc-950/80 text-racing-green shadow-[0_0_25px_rgba(36,198,126,0.2)]">
+                <Lock className="h-7 w-7" />
+              </div>
+              <div>
+                <p className="text-[10px] font-mono font-bold tracking-[0.28em] text-racing-green">RESTRICTED VEHICLE</p>
+                <p className="mt-2 text-sm font-semibold text-white">차량 이미지 기밀 유지 중</p>
+              </div>
+            </div>
+          </div>
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5 text-left md:p-7">
+            <div>
+              <span className="text-[10px] font-mono tracking-[0.24em] text-racing-green">NEXT VEHICLE / 2027</span>
+              <p className="mt-2 text-xl font-black tracking-[-0.04em] text-white md:text-3xl">KUN-F27은 곧 공개됩니다.</p>
+            </div>
+            <span className="text-6xl font-black leading-none text-white/90 md:text-8xl"></span>
+          </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setIsDecryptOpen(true)}
+          className="relative z-10 mt-6 inline-flex items-center gap-2 rounded-lg bg-racing-green px-5 py-2.5 text-xs font-mono font-bold text-black shadow-[0_0_20px_rgba(36,198,126,0.3)] transition hover:bg-lime-400 active:scale-95"
+        >
+          <Lock className="h-3.5 w-3.5" /> [+] DECRYPT CHASSIS SPEC
+        </button>
       </section>
 
-      <VehicleSpecsSection selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedVehicle={selectedVehicle} />
+      {/* ===== 사이트 본문 섹션 ===== */}
       <AboutKumaSection />
+      <VehicleSpecsSection selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedVehicle={selectedVehicle} />
       <AchievementsSection setSelectedAchievement={setSelectedAchievement} />
       <NewsSection />
       <GallerySection />
       <SponsorshipSection />
       <ContactSection />
 
+      {/* ===== INSTAGRAM FEED ===== */}
       <section className="border-t border-zinc-800 bg-zinc-950 py-12 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 mb-6 flex items-center justify-between gap-4">
           <div>
@@ -594,10 +796,12 @@ export default function App() {
         </div>
       </section>
 
+      {/* ===== FOOTER ===== */}
       <footer className="py-8 border-t border-zinc-900 text-center text-xs text-zinc-600 font-mono">
         © KUMA Racing Team. All engineering telemetry & CAD data reserved.
       </footer>
 
+      {/* ===== 성과 상세 모달 ===== */}
       {selectedAchievement && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 shadow-2xl">
@@ -654,18 +858,28 @@ export default function App() {
     </div>
   );
 }
+
+// ===== 사이트 데이터 =====
 // 공식 스폰서사 리스트
-const SPONSORS = [
-  { name: "KONGJU UNIVERSITY" },
-  { name: "ANSYS" },
-  { name: "MISUMI" },
-  { name: "HOOSIER" },
-  { name: "OZ RACING" },
-  { name: "ECU MASTER" },
-  { name: "AIMSAK" },
-  { name: "KUMA RACING" },
-  { name: "RACE LAB" },
-  { name: "KOREA RACE" },
+const SPONSOR_LIST = [
+  { name: "KONGJU NAT'L UNIV", logo: "/sponsors/kongju.png", url: "https://www.kongju.ac.kr" },
+  { name: "ANSYS", logo: "/sponsors/ansys.svg", url: "https://www.ansys.com" },
+  { name: "UPGRADE MOTORSPORT", logo: "/sponsors/upgrade.png", url: "https://www.upgrademotorsport.com" },
+  { name: "ECU MASTER", logo: "/sponsors/ecumaster.png", url: "https://www.ecumaster.com" },
+  { name: "MISUMI", logo: "/sponsors/misumi.png", url: "https://kr.misumi-ec.com" },
+  { name: "OZ RACING", logo: "/sponsors/oz.svg", url: "https://www.ozracing.com" },
+  { name: "HOOSIER", logo: "/sponsors/hoosier.png", url: "https://www.hoosiertire.com" },
+  { name: "AIMSAK", logo: "/sponsors/aimsak.png", url: "https://www.aimsak.com" },
+  { name: "DAEHEUNG SHARING", logo: "/sponsors/daeheung.png", url: "https://www.dhsharing.com" },
+  { name: "CHUNGNAM RISE", logo: "/sponsors/rise.png", url: "https://www.rise.or.kr" },
+  { name: "MSC SOFTWARE", logo: "", url: "https://www.mscsoftware.com" },
+  { name: "CALSPAN", logo: "", url: "https://www.calspan.com" },
+  { name: "BANGERS", logo: "", url: "https://www.bangers.com" },
+  { name: "CANE CREEK", logo: "", url: "https://canecreek.com" },
+  { name: "OPTIMUMG", logo: "", url: "https://optimumg.com" },
+  { name: "NORD-LOCK GROUP", logo: "", url: "https://www.nord-lock.com" },
+  { name: "TURBOSMART", logo: "", url: "https://turbosmart.com" },
+  { name: "공학교육혁신센터", logo: "", url: "https://www.kongju.ac.kr" },
 ];
 
 const ACHIEVEMENTS = [

@@ -202,3 +202,12 @@
 .animate-infinite-scroll:hover {
   animation-play-state: paused;
 }
+
+/* CRT 모니터/기밀 스캔라인 효과 */
+.scanline-overlay {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.75) 50%
+  );
+  background-size: 100% 4px;
+}

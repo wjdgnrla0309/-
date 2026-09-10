@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Zap, ShieldCheck, Mail, Phone, MapPin, FileText, Gauge, Menu, X, ArrowUpRight, Lock, ShieldAlert, Clock } from "lucide-react";
+import { Layers, Zap, Timer, ShieldCheck, Mail, Phone, MapPin, FileText, Gauge, Menu, X, ArrowUpRight, Lock, ShieldAlert, Clock } from "lucide-react";
 
 import { VEHICLE_DATABASE } from "./data/specs";
 import kumaLogo from "../KUMA LOGO.webp";
@@ -12,6 +12,13 @@ type SectionHeaderProps = {
   title: string;
   align?: "left" | "center";
   className?: string;
+};
+
+type InstagramPost = {
+  id: string;
+  label: string;
+  url: string;
+  image: string;
 };
 
 // ===== 공통 섹션 헤더 =====
@@ -27,6 +34,99 @@ function SectionHeader({ label, title, align = "left", className = "" }: Section
         {title}
       </h2>
     </div>
+  );
+}
+
+function ScrambleSpecCard({
+  icon: Icon,
+  label,
+  targetValue,
+  subText,
+  accentColor,
+}: {
+  icon: any;
+  label: string;
+  targetValue: string;
+  subText: string;
+  accentColor: string;
+}) {
+  return (
+    <div
+      className="group relative flex cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-zinc-800/80 bg-[#0c0d12] p-5 shadow-lg transition-all duration-300 hover:border-zinc-700"
+    >
+      <div className={`absolute inset-0 bg-gradient-to-b ${accentColor} opacity-0 transition-opacity duration-500 group-hover:opacity-5`} />
+      <div className="mb-1 flex items-center gap-1.5 text-[11px] font-mono tracking-widest text-zinc-500 uppercase">
+        <Icon className="h-3.5 w-3.5 text-zinc-400 transition-colors group-hover:text-racing-green" />
+        {label}
+      </div>
+      <div className="mt-1 text-2xl font-black tracking-wider text-zinc-500/70 transition-transform duration-200 group-hover:scale-105 md:text-3xl">
+        {targetValue}
+      </div>
+      <div className="mt-2 inline-flex items-center gap-1 rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[10px] font-mono text-zinc-400">
+        <span className="h-1 w-1 animate-ping rounded-full bg-racing-green" />
+        {subText}
+      </div>
+    </div>
+  );
+}
+
+function InstagramFeedSection() {
+  const [posts, setPosts] = useState<InstagramPost[]>(INSTAGRAM_FEED);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch("/api/instagram")
+      .then((response) => {
+        if (!response.ok) throw new Error("Instagram feed request failed");
+        return response.json() as Promise<{ posts: InstagramPost[] }>;
+      })
+      .then((data) => {
+        if (isMounted && data.posts.length > 0) setPosts(data.posts);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return (
+    <section className="border-t border-zinc-800 bg-zinc-950 py-12 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 mb-6 flex items-center justify-between gap-4">
+        <div>
+          <span className="text-xs font-mono text-racing-green tracking-widest uppercase">Follow KUMA</span>
+          <h2 className="text-3xl font-black tracking-[-0.06em] text-white mt-1">Instagram Feed</h2>
+        </div>
+        <a
+          href={INSTAGRAM_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-racing-green hover:text-racing-blue transition-colors"
+        >
+          <span aria-hidden="true">◎</span> @fs_team_kuma
+        </a>
+      </div>
+      <div className="instagram-marquee" aria-label="KUMA Instagram 피드">
+        <div className="instagram-track">
+          {[...posts, ...posts].map((post, index) => (
+            <a
+              key={`${post.id}-${index}`}
+              href={post.url}
+              target="_blank"
+              rel="noreferrer"
+              className="instagram-tile group"
+              aria-label={`${post.label} 인스타그램 게시물 보기`}
+            >
+              <img src={post.image} alt={post.label} loading="lazy" />
+              <span className="absolute inset-0 flex items-end bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 text-xs font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                {post.label}
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -455,6 +555,40 @@ function SponsorshipSection() {
 
 // ===== CONTACT US =====
 function ContactSection() {
+  const [isSending, setIsSending] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSending(true);
+    setStatus("idle");
+
+    const form = new FormData(event.currentTarget);
+    const payload = {
+      name: String(form.get("name") ?? "").trim(),
+      organization: String(form.get("organization") ?? "").trim(),
+      email: String(form.get("email") ?? "").trim(),
+      message: String(form.get("message") ?? "").trim(),
+    };
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error("Contact request failed");
+
+      event.currentTarget.reset();
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    } finally {
+      setIsSending(false);
+    }
+  }
+
   return (
     <section id="contact" className="py-20 px-6 max-w-7xl mx-auto border-t border-zinc-800">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -471,7 +605,7 @@ function ContactSection() {
             </div>
             <div className="flex items-center gap-3 text-zinc-300">
               <Mail className="w-5 h-5 text-racing-green shrink-0" />
-              <span>team-formula@university.ac.kr</span>
+              <span>wjdgnrla009@gmail.com</span>
             </div>
             <div className="flex items-start gap-3 text-zinc-300">
               <Phone className="w-5 h-5 text-racing-green shrink-0" />
@@ -483,26 +617,28 @@ function ContactSection() {
           </div>
         </div>
 
-        <form className="bg-racing-card p-6 rounded-xl border border-zinc-800 space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="bg-racing-card p-6 rounded-xl border border-zinc-800 space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="block text-xs font-mono text-zinc-400 mb-1">성함 / 담당자명</label>
-            <input type="text" className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-racing-green" placeholder="홍길동" />
+            <input name="name" required type="text" className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-racing-green" placeholder="홍길동" />
           </div>
           <div>
             <label className="block text-xs font-mono text-zinc-400 mb-1">소속 기업 / 기관</label>
-            <input type="text" className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-racing-green" placeholder="기업명 또는 부서명" />
+            <input name="organization" required type="text" className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-racing-green" placeholder="기업명 또는 부서명" />
           </div>
           <div>
             <label className="block text-xs font-mono text-zinc-400 mb-1">회신받을 이메일</label>
-            <input type="email" className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-racing-green" placeholder="partner@company.com" />
+            <input name="email" required type="email" className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-racing-green" placeholder="partner@company.com" />
           </div>
           <div>
             <label className="block text-xs font-mono text-zinc-400 mb-1">문의 내용</label>
-            <textarea rows={3} className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-racing-green" placeholder="스폰서십 제안 또는 문의 사항을 적어주세요."></textarea>
+            <textarea name="message" required rows={3} className="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-racing-green" placeholder="스폰서십 제안 또는 문의 사항을 적어주세요."></textarea>
           </div>
-          <button type="submit" className="w-full py-2.5 bg-racing-green text-black font-bold text-sm rounded hover:bg-racing-blue hover:text-white transition-colors">
-            문의 메시지 전송하기
+          <button type="submit" disabled={isSending} className="w-full py-2.5 bg-racing-green text-black font-bold text-sm rounded hover:bg-racing-blue hover:text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60">
+            {isSending ? "전송 중..." : "문의 메시지 전송하기"}
           </button>
+          {status === "success" && <p className="text-sm text-racing-green">문의가 전송되었습니다. 확인 후 회신드리겠습니다.</p>}
+          {status === "error" && <p className="text-sm text-red-400">전송에 실패했습니다. 잠시 후 다시 시도해 주세요.</p>}
         </form>
       </div>
     </section>
@@ -656,6 +792,9 @@ export default function App() {
         <div className="pointer-events-none absolute -right-8 top-16 select-none text-[18rem] font-black leading-none text-white/[0.025] md:right-16 md:top-8 md:text-[28rem]">
           ?
         </div>
+        <div className="pointer-events-none absolute -left-8 top-[42%] rotate-[10deg] select-none text-[14rem] font-black leading-none text-white/[0.01] md:left-8 md:text-[22rem]">
+          ?
+        </div>
 
         <div className="relative z-10 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-racing-green/40 text-xs font-mono text-zinc-300 mb-6">
           <span className="w-2 h-2 rounded-full bg-racing-green animate-pulse"></span>
@@ -698,19 +837,28 @@ export default function App() {
           </div>
         </div>
 
-        <div className="mt-10 grid grid-cols-3 gap-4 md:gap-8 w-full max-w-2xl">
-          <div className="bg-racing-card/60 p-4 rounded-xl border border-zinc-800/80">
-            <div className="text-xs text-zinc-500 font-mono">CURB WEIGHT</div>
-            <div className="text-2xl md:text-3xl font-bold font-mono text-white mt-1">?</div>
-          </div>
-          <div className="bg-racing-card/60 p-4 rounded-xl border border-zinc-800/80">
-            <div className="text-xs text-zinc-500 font-mono">MAX POWER</div>
-            <div className="text-2xl md:text-3xl font-bold font-mono text-racing-green mt-1">?</div>
-          </div>
-          <div className="bg-racing-card/60 p-4 rounded-xl border border-zinc-800/80">
-            <div className="text-xs text-zinc-500 font-mono">TOP SPEED</div>
-            <div className="text-2xl md:text-3xl font-bold font-mono text-white mt-1">?</div>
-          </div>
+        <div className="mt-10 grid w-full max-w-2xl grid-cols-3 gap-4 md:gap-8">
+          <ScrambleSpecCard
+            icon={Layers}
+            label="CAR WEIGHT"
+            targetValue="≤ 1XX kg"
+            subText="TARGET // CLASSIFIED"
+            accentColor="from-racing-green to-transparent"
+          />
+          <ScrambleSpecCard
+            icon={Zap}
+            label="MAX HP"
+            targetValue="≥ XX PS"
+            subText="OUTPUT // CLASSIFIED"
+            accentColor="from-racing-blue to-transparent"
+          />
+          <ScrambleSpecCard
+            icon={Timer}
+            label="TOP SPEED"
+            targetValue="≥ 1XX km/h"
+            subText="LIMIT // CLASSIFIED"
+            accentColor="from-racing-green to-transparent"
+          />
         </div>
 
           <div className="relative mt-12 w-full max-w-4xl overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl">
@@ -760,41 +908,7 @@ export default function App() {
       <ContactSection />
 
       {/* ===== INSTAGRAM FEED ===== */}
-      <section className="border-t border-zinc-800 bg-zinc-950 py-12 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 mb-6 flex items-center justify-between gap-4">
-          <div>
-            <span className="text-xs font-mono text-racing-green tracking-widest uppercase">Follow KUMA</span>
-            <h2 className="text-3xl font-black tracking-[-0.06em] text-white mt-1">Instagram Feed</h2>
-          </div>
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-racing-green hover:text-racing-blue transition-colors"
-          >
-            <span aria-hidden="true">◎</span> @fs_team_kuma
-          </a>
-        </div>
-        <div className="instagram-marquee" aria-label="KUMA Instagram 피드">
-          <div className="instagram-track">
-            {[...INSTAGRAM_FEED, ...INSTAGRAM_FEED].map((post, index) => (
-              <a
-                key={`${post.id}-${index}`}
-                href={post.url}
-                target="_blank"
-                rel="noreferrer"
-                className="instagram-tile group"
-                aria-label={`${post.label} 인스타그램 게시물 보기`}
-              >
-                <img src={post.image} alt={post.label} loading="lazy" />
-                <span className="absolute inset-0 flex items-end bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 text-xs font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                  {post.label}
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+      <InstagramFeedSection />
 
       {/* ===== FOOTER ===== */}
       <footer className="py-8 border-t border-zinc-900 text-center text-xs text-zinc-600 font-mono">
@@ -864,22 +978,22 @@ export default function App() {
 const SPONSOR_LIST = [
   { name: "KONGJU NAT'L UNIV", logo: "/sponsors/kongju.png", url: "https://www.kongju.ac.kr" },
   { name: "ANSYS", logo: "/sponsors/ansys.svg", url: "https://www.ansys.com" },
-  { name: "UPGRADE MOTORSPORT", logo: "/sponsors/upgrade.png", url: "https://www.upgrademotorsport.com" },
+  { name: "UPGRADE MOTORSPORT", logo: "/sponsors/upgrade.png", url: "https://www.upgrademotorsport.co.uk/" },
   { name: "ECU MASTER", logo: "/sponsors/ecumaster.png", url: "https://www.ecumaster.com" },
   { name: "MISUMI", logo: "/sponsors/misumi.png", url: "https://kr.misumi-ec.com" },
   { name: "OZ RACING", logo: "/sponsors/oz.svg", url: "https://www.ozracing.com" },
   { name: "HOOSIER", logo: "/sponsors/hoosier.png", url: "https://www.hoosiertire.com" },
   { name: "AIMSAK", logo: "/sponsors/aimsak.png", url: "https://www.aimsak.com" },
-  { name: "DAEHEUNG SHARING", logo: "/sponsors/daeheung.png", url: "https://www.dhsharing.com" },
-  { name: "CHUNGNAM RISE", logo: "/sponsors/rise.png", url: "https://www.rise.or.kr" },
-  { name: "MSC SOFTWARE", logo: "", url: "https://www.mscsoftware.com" },
+  { name: "대흥샤링", logo: "/sponsors/daeheung.png", url: "" },
+  { name: "CHUNGNAM RISE", logo: "/sponsors/rise.png", url: "https://www.cnrise.or.kr/" },
+  { name: "MSC SOFTWARE", logo: "", url: "https://mscsoftware.co.kr/" },
   { name: "CALSPAN", logo: "", url: "https://www.calspan.com" },
-  { name: "BANGERS", logo: "", url: "https://www.bangers.com" },
+  { name: "BANGERS", logo: "", url: "https://www.instagram.com/bangers966?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw==" },
   { name: "CANE CREEK", logo: "", url: "https://canecreek.com" },
   { name: "OPTIMUMG", logo: "", url: "https://optimumg.com" },
   { name: "NORD-LOCK GROUP", logo: "", url: "https://www.nord-lock.com" },
   { name: "TURBOSMART", logo: "", url: "https://turbosmart.com" },
-  { name: "공학교육혁신센터", logo: "", url: "https://www.kongju.ac.kr" },
+  { name: "공학교육혁신센터", logo: "", url: "https://www.kongju.ac.kr/KNU/16622/subview.do" },
 ];
 
 const ACHIEVEMENTS = [

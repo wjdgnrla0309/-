@@ -1,5 +1,21 @@
 # React + TypeScript + Vite
 
+## Instagram feed
+
+The site loads the latest posts from `/api/instagram` and keeps the bundled feed as a fallback. The API function is ready for Vercel deployment.
+
+1. Create a Meta/Instagram API access token for the connected professional account.
+2. Copy `.env.example` to `.env.local` and set `INSTAGRAM_ACCESS_TOKEN`.
+3. Deploy to Vercel. Keep the token in the server environment and do not use a `VITE_` prefix.
+
+## Contact form
+
+The contact form sends messages through the Resend API from the server-side `/api/contact` function.
+
+1. Create a Resend API key.
+2. Add `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `RESEND_FROM_EMAIL` to `.env.local` or your Vercel environment variables.
+3. Use a verified domain for `RESEND_FROM_EMAIL` in production. The `onboarding@resend.dev` address is suitable only for testing.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

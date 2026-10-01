@@ -1,0 +1,11 @@
+{
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json, tsconfig*.json, vite.config.*, postcss.config.*, tailwind.config.*, .oxlintrc.json",
+    ".env.example": ".env.local"
+  }
+}

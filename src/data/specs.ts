@@ -17,6 +17,8 @@ export interface VehicleData {
   specs: SpecItem[];
 }
 
+export type VehicleYear = "2026" | "2025" | "2024" | "2023";
+
 export const VEHICLE_DATABASE: Record<string, VehicleData> = {
   "2026": {
     season: "2026",

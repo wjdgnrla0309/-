@@ -1,11 +1,11 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import contactHandler from "./api/contact.js";
 
-function contactApiMiddleware() {
+function contactApiMiddleware(): Plugin {
   return {
     name: "contact-api-middleware",
-    configureServer(server: { middlewares: { use: (path: string, handler: (request: any, response: any, next: () => void) => void) => void } }) {
+    configureServer(server) {
       server.middlewares.use("/api/contact", async (request, response, next) => {
         if (request.method !== "POST") {
           next();
@@ -48,12 +48,14 @@ function contactApiMiddleware() {
 
 export default defineConfig(({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), ""));
+  const pagesBasePath = process.env.VITE_BASE_PATH?.replace(/\/+$/, "");
 
   return {
+    base: pagesBasePath ? `${pagesBasePath}/` : "/",
     plugins: [react(), contactApiMiddleware()],
-  server: {
-    host: "0.0.0.0",
-    port: 5173,
-  },
+    server: {
+      host: "0.0.0.0",
+      port: 5173,
+    },
   };
 });
